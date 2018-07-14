@@ -1,5 +1,5 @@
 from sqlalchemy.orm import sessionmaker
-from DBClasses import Intent, Pattern, Response, engine, Base
+from DBClasses import Intent, Pattern, Response, User, engine, Base
 
 DBSession = sessionmaker(bind=engine)
 
@@ -38,3 +38,19 @@ def deleteAnswer(id):
     session.delete(response)
     session.commit()
     session.close()
+
+#User
+
+def getUsers():
+    session = DBSession()
+    users = session.query(User).all()
+    print('debugDB')
+    print(users)
+    session.close()
+    return users
+
+def getSingleUser(id):
+    session = DBSession()
+    user = session.query(User).filter_by(id=id).first()
+    session.close()
+    return user

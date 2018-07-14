@@ -1,6 +1,7 @@
 #JSON
 import json
 import jsonpickle
+import numpy as np
 
 #FLASK
 from flask import Flask, render_template, request, redirect, url_for, Response
@@ -10,9 +11,9 @@ from sqlalchemy import exc
 
 
 #DB
-from DBClasses import Intent, Pattern, Response, IntentSchema, ResponseSchema, PatternSchema
+from DBClasses import Intent, Pattern, Response, User, IntentSchema, ResponseSchema, PatternSchema, UserSchema
 from marshmallow import pprint
-from Database import insertEdit, getIntents, getSingleIntent, deleteIntent, deleteAnswer
+from Database import insertEdit, getIntents, getSingleIntent, deleteIntent, deleteAnswer, getUsers, getSingleUser
 
 #ChatBot&Training
 from Training import train
@@ -45,6 +46,7 @@ def errorResp(error=None):
 
 
 #Routes
+#CHATBOT
 @app.route("/api/ChatBot/Train", methods=["GET", "POST"])
 @cross_origin()
 def trainChatbot():
@@ -53,6 +55,20 @@ def trainChatbot():
     #IMPLEMENTAR RESPOSTA COM CONTENT TYPE CERTO!!!!!!!!!!!!!!
     return "Ok"
 
+@app.route("/api/ChatBot/Response",methods=["POST"])
+@cross_origin()
+def responseChatbot():
+    question = request.get_json()
+    print(question['question'])
+    classi = chatBotClassify(question['question'])
+    classi_dict={}
+    for classification in classi:
+        classi_dict[classification[0]] = "{!s}".format(classification[1])
+
+
+    return json.dumps(dict(answer = chatBotResponse(question['question']),classification = [classi_dict]))
+
+    
 #INTENT
 
 @app.route("/api/Intents",methods=["GET"])
@@ -65,14 +81,6 @@ def listIntents():
 
 
 
-@app.route("/api/ChatBot/Response",methods=["POST"])
-@cross_origin()
-def responseChatbot():
-    question = request.get_json()
-    print(question['question'])
-    classi = chatBotClassify(question['question'])
-    print(classi)  
-    return json.dumps(dict(response = chatBotResponse(question['question'])))
 
 
 
@@ -138,7 +146,35 @@ def delAnswer(id):
     except exc.SQLAlchemyError:
         return errorResp()
 
+
+#User
+@app.route("/api/Users",methods=["GET"])
+@cross_origin()
+def listUsers():
+    try:
+        print('debug1')
+        users = getUsers()
+        print('debug2')
+        schema = UserSchema(many=True)
+        return json.dumps(schema.dump(users))
+
+    except exc.SQLAlchemyError:
+        return errorResp()
+
+@app.route("/api/insertUser",methods=["POST"])
+@cross_origin()
+def insertUser():
+    try:
+        userJSON = request.get_json()
+        user = User()
+        user.name = userJSON['name']
+        user.username = userJSON['username']
+        user.password = userJSON['password']
+        insertEdit(user)
+        return returnOk()
+
+    except exc.SQLAlchemyError:
+        return errorResp()
+
 if __name__ == "__main__":
     app.run(debug=True)
-
-

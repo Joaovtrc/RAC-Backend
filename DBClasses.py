@@ -1,13 +1,14 @@
 import os
 import sys
-from sqlalchemy import Column, ForeignKey, Integer, String
+import datetime
+from sqlalchemy import Column, ForeignKey, Integer, String, Float, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 from marshmallow import Schema, fields, pprint
 
 Base = declarative_base()
-
+    
 class Intent(Base):
     __tablename__ = 'intents'
     id = Column(Integer, primary_key = True,autoincrement=True)
@@ -29,6 +30,28 @@ class Response(Base):
     response = Column(String(500), nullable=False)
     intent_id = Column(Integer, ForeignKey('intents.id'))
 
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True,autoincrement=True)
+    username = Column(String(20), nullable=False)
+    password = Column(String(30), nullable=False)
+    name = Column(String(300), nullable=False)
+    conversation = relationship('Conversation',backref ='users', lazy='subquery')
+
+class Conversation(Base):
+    __tablename__ = 'conversations'
+    id = Column(Integer, primary_key=True,autoincrement=True)
+    question = Column(String(500), nullable=False)
+    classify = Column(Float(5))
+    response_id = Column(Integer, ForeignKey('responses.id'))
+    pattern_id = Column(Integer, ForeignKey('patterns.id'))
+    user_id = Column(Integer, ForeignKey('users.id'))
+    date = Column(DateTime, default=datetime.datetime.now())
+
+
+    
+
+
 
 ##SCHEMAS
 
@@ -49,6 +72,26 @@ class IntentSchema(Schema):
     context_set = fields.String()
     patterns = fields.Nested(PatternSchema(), many=True)
     responses = fields.Nested(ResponseSchema(), many=True)
+
+class UserSchema(Schema):
+    id = fields.Integer()
+    tag = fields.String()
+    name = fields.String()
+    username = fields.String()
+    password = fields.String(load_only=True)
+    conversations = fields.Nested('ConversationSchema', many=True,exclude=('user', ))
+
+class ConversationSchema(Schema):
+    id = fields.Integer()
+    question = fields.String()
+    date = fields.Date(dump_only=True)
+    user = fields.Nested(UserSchema)
+    classify = fields.Float()
+    pattern = fields.Nested(PatternSchema())
+    response = fields.Nested(ResponseSchema())
+
+
+
 
 
 engine = create_engine('sqlite:///rac_database.db')

@@ -108,4 +108,3 @@ def response(sentence, userID='123', show_details=True):
                         return response
 
             results.pop(0)
-
