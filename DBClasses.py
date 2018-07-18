@@ -43,10 +43,17 @@ class Conversation(Base):
     id = Column(Integer, primary_key=True,autoincrement=True)
     question = Column(String(500), nullable=False)
     classify = Column(Float(5))
-    response_id = Column(Integer, ForeignKey('responses.id'))
-    pattern_id = Column(Integer, ForeignKey('patterns.id'))
-    user_id = Column(Integer, ForeignKey('users.id'))
     date = Column(DateTime, default=datetime.datetime.now())
+
+    response_id = Column(Integer, ForeignKey('responses.id'))
+    response = relationship('Response', lazy='subquery')
+
+    intent_id = Column(Integer, ForeignKey('intents.id'))
+    intent = relationship('Intent', lazy='subquery')
+
+    user_id = Column(Integer, ForeignKey('users.id'))
+    user = relationship('User', lazy='subquery')
+
 
 
     
@@ -75,7 +82,6 @@ class IntentSchema(Schema):
 
 class UserSchema(Schema):
     id = fields.Integer()
-    tag = fields.String()
     name = fields.String()
     username = fields.String()
     password = fields.String(load_only=True)
@@ -85,9 +91,9 @@ class ConversationSchema(Schema):
     id = fields.Integer()
     question = fields.String()
     date = fields.Date(dump_only=True)
-    user = fields.Nested(UserSchema)
+    user = fields.Nested(UserSchema())
     classify = fields.Float()
-    pattern = fields.Nested(PatternSchema())
+    intent = fields.Nested(IntentSchema(only=('tag', 'id')))
     response = fields.Nested(ResponseSchema())
 
 

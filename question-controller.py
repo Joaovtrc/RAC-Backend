@@ -4,16 +4,15 @@ import jsonpickle
 import numpy as np
 
 #FLASK
-from flask import Flask, render_template, request, redirect, url_for, Response
-from flask import jsonify
+from flask import Flask, jsonify, render_template, request, redirect, url_for, Response
 from flask_cors import CORS, cross_origin
 from sqlalchemy import exc
 
 
 #DB
-from DBClasses import Intent, Pattern, Response, User, IntentSchema, ResponseSchema, PatternSchema, UserSchema
+from DBClasses import Intent, Pattern, Response, User, Conversation, IntentSchema, ResponseSchema, PatternSchema, UserSchema, ConversationSchema
 from marshmallow import pprint
-from Database import insertEdit, getIntents, getSingleIntent, deleteIntent, deleteAnswer, getUsers, getSingleUser
+from Database import insertEdit, getIntents, getSingleIntent, deleteIntent, deleteResponse,getSingleResponse,getIntentByName, getUsers, getSingleUser, addConversation
 
 #ChatBot&Training
 from Training import train
@@ -65,8 +64,27 @@ def responseChatbot():
     for classification in classi:
         classi_dict[classification[0]] = "{!s}".format(classification[1])
 
+    classify = classi[0]
+    cv = Conversation()
+    cv.user = getSingleUser(question['idUser'])
+    
+    cv.question = question['question']
+    cv.classify = classify[1]
+    #INSTANCIAR OBJETO RESPONSE, PQ O CHATBOT RESPONDE EM DICT!!!
 
-    return json.dumps(dict(answer = chatBotResponse(question['question']),classification = [classi_dict]))
+    responseDict = chatBotResponse(question['question'])
+    cv.response = Response()
+    cv.response = getSingleResponse(responseDict['id'])
+
+    cv.intent = Intent()
+    cv.intent = getIntentByName(classify[0])
+
+    addConversation(cv)
+
+
+    conversationSchema = ConversationSchema()
+    print(json.dumps(conversationSchema.dump(cv)))
+    return json.dumps(conversationSchema.dump(cv))
 
     
 #INTENT
@@ -140,7 +158,7 @@ def insertIntent():
 @cross_origin()
 def delAnswer(id):
     try:
-        deleteAnswer(id)
+        deleteResponse(id)
         return returnOk()
 
     except exc.SQLAlchemyError:
@@ -155,6 +173,7 @@ def listUsers():
         print('debug1')
         users = getUsers()
         print('debug2')
+        print(users[0].conversation)
         schema = UserSchema(many=True)
         return json.dumps(schema.dump(users))
 

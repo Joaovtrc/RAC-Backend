@@ -85,7 +85,7 @@ def classify(sentence):
     # return tuple of intent and probability
     return return_list
 
-def response(sentence, userID='123', show_details=True):
+def response(sentence, userID='123', show_details=False):
     results = classify(sentence)
     # if we have a classification then find the matching intent tag
     if results:
