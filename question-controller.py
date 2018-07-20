@@ -97,11 +97,6 @@ def listIntents():
     return json.dumps(schema.dump(intents))
 
 
-
-
-
-
-
 @app.route("/api/insertIntent",methods=["POST"])
 @cross_origin()
 def insertIntentAnswersPatterns():
@@ -169,14 +164,22 @@ def delAnswer(id):
 @app.route("/api/Users",methods=["GET"])
 @cross_origin()
 def listUsers():
-    try:
         print('debug1')
         users = getUsers()
-        print('debug2')
-        print(users[0].conversation)
         schema = UserSchema(many=True)
+        print('debug2')
+
         return json.dumps(schema.dump(users))
 
+@app.route("/api/getSingleUser/<int:id>",methods=["GET"])
+@cross_origin()
+def getUser(id):
+    try:
+        print('debug1')
+        user = getSingleUser(id)
+        schema = UserSchema()
+        return json.dumps(schema.dump(user))
+        
     except exc.SQLAlchemyError:
         return errorResp()
 

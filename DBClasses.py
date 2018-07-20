@@ -36,7 +36,7 @@ class User(Base):
     username = Column(String(20), nullable=False)
     password = Column(String(30), nullable=False)
     name = Column(String(300), nullable=False)
-    conversation = relationship('Conversation',backref ='users', lazy='subquery')
+    conversations = relationship('Conversation',backref ='users', lazy='subquery')
 
 class Conversation(Base):
     __tablename__ = 'conversations'
@@ -80,22 +80,21 @@ class IntentSchema(Schema):
     patterns = fields.Nested(PatternSchema(), many=True)
     responses = fields.Nested(ResponseSchema(), many=True)
 
+class ConversationSchema(Schema):
+    id = fields.Integer()
+    question = fields.String()
+    date = fields.Date(dump_only=True)
+    user = fields.Nested('UserSchema')
+    classify = fields.Float()
+    intent = fields.Nested(IntentSchema(only=('tag', 'id')))
+    response = fields.Nested(ResponseSchema())
+
 class UserSchema(Schema):
     id = fields.Integer()
     name = fields.String()
     username = fields.String()
     password = fields.String(load_only=True)
-    conversations = fields.Nested('ConversationSchema', many=True,exclude=('user', ))
-
-class ConversationSchema(Schema):
-    id = fields.Integer()
-    question = fields.String()
-    date = fields.Date(dump_only=True)
-    user = fields.Nested(UserSchema())
-    classify = fields.Float()
-    intent = fields.Nested(IntentSchema(only=('tag', 'id')))
-    response = fields.Nested(ResponseSchema())
-
+    conversations = fields.Nested(ConversationSchema, many=True, exclude=('user',))
 
 
 

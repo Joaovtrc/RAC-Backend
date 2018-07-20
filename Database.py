@@ -59,8 +59,9 @@ def addConversation(cv):
 def getUsers():
     users = session.query(User).all()
     print('debugDB')
-    print(users)
     session.close()
+    print('debugDB2')
+
     return users
 
 def getSingleUser(id):
