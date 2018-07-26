@@ -1,0 +1,294 @@
+ {
+  "intents": [
+    {
+      "context_filter": "",
+      "context_set": "saudacao",
+      "patterns": [
+        "oi",
+        "olá",
+        "bom dia",
+        "boa noite",
+        "como vai?",
+        "boa tarde",
+        "e ai?",
+        "tudo bom?",
+        "tudo bem?"
+      ],
+      "responses": [
+        "Olá, posso te ajudar em alguma coisa?",
+        "Oi, meu nome é RAC"
+      ],
+      "tag": "primeira_saudacao"
+    },
+    {
+      "context_filter": "",
+      "context_set": "",
+      "patterns": [
+        "o que você faz?",
+        "para que você foi criado?",
+        "qual a sua função?",
+        "o que você pode fazer?"
+      ],
+      "responses": [
+        "Minha principal função é tirar dúvidas sobre os conteúdos escolares",
+        "Eu respondo perguntas sobre coisas que você aprendeu na escola."
+      ],
+      "tag": "questionar_funcao"
+    },
+    {
+      "context_filter": "",
+      "context_set": "descobrimento_brasil",
+      "patterns": [
+        "qual o nome de quem descobriu o Brasil?",
+        "quem descobriu o Brasil?"
+      ],
+      "responses": [
+        "Pedro Álvares Cabral descobriu o brasil no dia 22 de abril por volta do ano 1500."
+      ],
+      "tag": "quem_descobriu_brasil"
+    },
+    {
+      "context_filter": "",
+      "context_set": "descobrimento_brasil",
+      "patterns": [
+        "onde pedro alvares cabral descobriu o brasil?",
+        "por onde o brasil foi descoberto?",
+        "qual cidade foi descoberto o brasil?"
+      ],
+      "responses": [
+        "O primeiro lugar que Pedro Álvares atracou foi Porto Seguro, no estado da Bahia."
+      ],
+      "tag": "detalhes_local_descobrimento_brasil"
+    },
+    {
+      "context_filter": "",
+      "context_set": "segunda_guerra",
+      "patterns": [
+        "quem venceu a segunda guerra mundial?",
+        "quem foi o vencedor da segunda guerra mundial?"
+      ],
+      "responses": [
+        "Os vencedores da segunda guerra foram os Aliados, que foi um grupo formado principalmente por Estados Unidos, União Soviética e Reino Unido"
+      ],
+      "tag": "vencedor_segunda_guerra"
+    },
+    {
+      "context_filter": "",
+      "context_set": "segunda_guerra",
+      "patterns": [
+        "quando acabou a segunda guerra?",
+        "em qual ano acabou a segunda guerra?",
+        "em que época acabou a segunda guerra?"
+      ],
+      "responses": [
+        "As bombas atômicas de Hiroshima e Nagazaki marcaram o fim da segunda guerra em 9 de agosto de 1945.",
+        "A segunda guerra terminou em 2 de setembro de 1945"
+      ],
+      "tag": "termino_segunda_guerra"
+    },
+    {
+      "context_filter": "",
+      "context_set": "",
+      "patterns": [
+        "qual é o seu nome?",
+        "quem é você?",
+        "como você se chama?",
+        "como te chamam?"
+      ],
+      "responses": [
+        "Meu nome é RAC, que significa Robô de Aprendizagem de Conteúdos"
+      ],
+      "tag": "perguntar_nome"
+    },
+    {
+      "context_filter": "",
+      "context_set": "",
+      "patterns": [
+        "quem criou você?",
+        "quem fez você?",
+        "quem fabricou você?"
+      ],
+      "responses": [
+        "Eu fui criado por uma equipe de TCC da Universidade Positivo"
+      ],
+      "tag": "perguntar_criador"
+    },
+    {
+      "context_filter": "",
+      "context_set": "",
+      "patterns": [
+        "que esportes você gosta?",
+        "você pratica esportes?",
+        "qual seu esporte preferido?",
+        "qual esporte você mais gosta?"
+      ],
+      "responses": [
+        "Eu gosto de todos os esportes, mas meu preferido é futebol!",
+        "Eu adoro futebol !"
+      ],
+      "tag": "esportes_do_rac"
+    }, {
+     "tag": "atividades_que_aluno_fez",
+     "context_filter": "",
+     "patterns": [
+       "ontem eu fui no parque",
+       "hoje eu fui no parque",
+       "eu fui no shopping",
+       "eu joguei bola",
+       "eu passeei",
+       "eu viajei",
+       "eu brinquei"
+     ],
+     "context_set": "",
+     "responses": [
+       "Puxa, que legal ! Queria ter ido junto !",
+       "Nossa, que maneiro !"
+     ]
+   },
+   {
+     "tag": "aluno_apresenta_brinquedo",
+     "context_filter": "",
+     "patterns": [
+       "olha o meu brinquedo",
+       "esse é o meu brinquedo",
+       "eu ganhei esse brinquedo",
+       "você gostou do meu brinquedo?",
+       "olha que legal meu brinquedo"
+     ],
+     "context_set": "",
+     "responses": [
+       "Nossa, que bonito !",
+       "Uau que legal !"
+     ]
+   },
+   {
+     "tag": "gostos_aluno",
+     "context_filter": "",
+     "patterns": [
+       "eu gosto de sorvete",
+       "eu gosto de andar de bicicleta",
+       "eu gosto de futebol",
+       "eu curto comer macarrão",
+       "eu adoro ir pra escola"
+     ],
+     "context_set": "gostos_aluno",
+     "responses": [
+       "Ah legal, eu também gosto !",
+       "Eu também gosto !"
+     ]
+   },
+   {
+     "tag": "atividade_preferida_rac",
+     "context_filter": "",
+     "patterns": [
+       "qual a sua atividade preferida?",
+       "o que você mais gosta de fazer?",
+       "o que você ama fazer?"
+     ],
+     "context_set": "",
+     "responses": [
+       "A minha atividade preferida é aprender!",
+       "Eu adoro aprender coisas novas !"
+     ]
+   },
+   {
+     "tag": "comida_favorita_rac",
+     "context_filter": "",
+     "patterns": [
+       "qual a sua comida favorita?",
+       "o que você gosta de comer?",
+       "o que você come?"
+     ],
+     "context_set": "",
+     "responses": [
+       "Eu não consigo comer nada, mas pizzas parecem muito gostosas !"
+     ]
+   },
+
+
+  {
+      "context_filter": "",
+      "context_set": "independencia_do_brasil",
+      "patterns": [
+        "quando aconteceu a independência do brasil?",
+        "em que ano ocorreu a independência do brasil?"
+      ],
+      "responses": [
+        "A independência do brasil aconteceu no dia 7 de setembro de 1822"
+      ],
+      "tag": "independencia_do_brasil"
+   },
+   {
+      "context_filter": "",
+      "context_set": "ditadura_militar",
+      "patterns": [
+        "quanto tempo levou a ditadura militar?",
+        "quantos anos durou a ditadura militar?"
+      ],
+      "responses": [
+        "A ditadura militar durou 21 anos, de 1964 a 1985"
+      ],
+      "tag": " ditadura_militar"
+   },
+   {
+      "context_filter": "",
+      "context_set": "presidente_brasil",
+      "patterns": [
+        "quem é o presidente atual do brasil?",
+        "quem está na presidência do brasil atualmente?"
+      ],
+      "responses": [
+        "Michel Fora Temer"
+      ],
+      "tag": "presidente_brasil"
+   },
+   {
+      "context_filter": "",
+      "context_set": "primeiro_reinado",
+      "patterns": [
+        "quanto tempo durou o primeiro reinado?"
+      ],
+      "responses": [
+        "O primeiro reinado durou 9 anos, de 1822 a 1831 com Dom Pedro I no poder"
+      ],
+      "tag": " primeiro_reinado"
+   },
+   {
+      "context_filter": "",
+      "context_set": "segundo_reinado",
+      "patterns": [
+        "quanto tempo durou o segundo reinado?"
+      ],
+      "responses": [
+        "O segundo reinado durou 49 anos, de 1840 a 1889 com Dom Pedro II no poder, após abdição de seu pai Dom Pedro I"
+      ],
+      "tag": " segundo_reinado"
+   },
+   {
+      "context_filter": "",
+      "context_set": "revolução_1930",
+      "patterns": [
+        "o que foi a revolução de 1930?",
+        "como aconteceu a revolução de 1930?"
+      ],
+      "responses": [
+        "A revolução de 1930 foi um movimento de revolta armada que tirou o presidente Washington do poder através de um golpe colocando como novo presidente Getulio Vargas"
+      ],
+      "tag": " revolução_1930"
+   },
+   {
+      "context_filter": "",
+      "context_set": "getulio_vargas",
+      "patterns": [
+        "quanto tempo Getulio Vargas ficou no poder?",
+        "quantos anos Getulio Vargas foi presidente do brasil?"
+      ],
+      "responses": [
+        "Getulio Vargas foi presidente do brasil durante 15 anos a partir de 1930 após o golpe que tirou Washington da presidência"
+      ],
+      "tag": " getulio_vargas "
+   }
+ ]
+}
+
+

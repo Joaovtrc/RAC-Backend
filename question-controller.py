@@ -4,7 +4,7 @@ import jsonpickle
 import numpy as np
 
 #FLASK
-from flask import Flask, jsonify, render_template, request, redirect, url_for, Response
+from flask import Flask, jsonify, render_template, request, redirect, url_for, Response as ResponseHttp
 from flask_cors import CORS, cross_origin
 from sqlalchemy import exc
 
@@ -50,18 +50,16 @@ def errorResp(error=None):
 @cross_origin()
 def trainChatbot():
     train()
-
-    #IMPLEMENTAR RESPOSTA COM CONTENT TYPE CERTO!!!!!!!!!!!!!!
-    return "Ok"
+    return returnOk()
 
 @app.route("/api/ChatBot/Response",methods=["POST"])
 @cross_origin()
 def responseChatbot():
     question = request.get_json()
-    print(question['question'])
     classi = chatBotClassify(question['question'])
     classi_dict={}
     for classification in classi:
+        print(classification)
         classi_dict[classification[0]] = "{!s}".format(classification[1])
 
     classify = classi[0]
@@ -83,8 +81,9 @@ def responseChatbot():
 
 
     conversationSchema = ConversationSchema()
-    print(json.dumps(conversationSchema.dump(cv)))
-    return json.dumps(conversationSchema.dump(cv))
+    return ResponseHttp(response=json.dumps(conversationSchema.dump(cv)),
+                    status=200,
+                    mimetype="application/json")
 
     
 #INTENT
@@ -94,7 +93,9 @@ def responseChatbot():
 def listIntents():
     intents = getIntents()
     schema = IntentSchema(many=True)
-    return json.dumps(schema.dump(intents))
+    return  ResponseHttp(response=json.dumps(schema.dump(intents)),
+                    status=200,
+                    mimetype="application/json")
 
 
 @app.route("/api/insertIntent",methods=["POST"])
@@ -164,12 +165,15 @@ def delAnswer(id):
 @app.route("/api/Users",methods=["GET"])
 @cross_origin()
 def listUsers():
-        print('debug1')
-        users = getUsers()
-        schema = UserSchema(many=True)
-        print('debug2')
+    print('debug1')
+    users = getUsers()
+    schema = UserSchema(many=True)
+    print('debug2')
 
-        return json.dumps(schema.dump(users))
+    return  ResponseHttp(response=json.dumps(schema.dump(users)),
+                    status=200,
+                    mimetype="application/json")
+         
 
 @app.route("/api/getSingleUser/<int:id>",methods=["GET"])
 @cross_origin()
@@ -178,7 +182,9 @@ def getUser(id):
         print('debug1')
         user = getSingleUser(id)
         schema = UserSchema()
-        return json.dumps(schema.dump(user))
+        return  ResponseHttp(response=json.dumps(schema.dump(user)),
+                    status=200,
+                    mimetype="application/json")
         
     except exc.SQLAlchemyError:
         return errorResp()

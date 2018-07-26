@@ -84,7 +84,7 @@ class ConversationSchema(Schema):
     id = fields.Integer()
     question = fields.String()
     date = fields.Date(dump_only=True)
-    user = fields.Nested('UserSchema')
+    user = fields.Nested('UserSchema', exclude=('conversations',))
     classify = fields.Float()
     intent = fields.Nested(IntentSchema(only=('tag', 'id')))
     response = fields.Nested(ResponseSchema())
