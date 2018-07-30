@@ -12,7 +12,7 @@ from sqlalchemy import exc
 #DB
 from DBClasses import Intent, Pattern, Response, User, Conversation, IntentSchema, ResponseSchema, PatternSchema, UserSchema, ConversationSchema
 from marshmallow import pprint
-from Database import insertEdit, getIntents, getSingleIntent, deleteIntent, deleteResponse,getSingleResponse,getIntentByName, getUsers, getSingleUser, addConversation
+from Database import insertEdit, getIntents, getSingleIntent, deleteIntent, deleteResponse,deletePattern, getSingleResponse,getIntentByName, getUsers, getSingleUser, addConversation
 
 #ChatBot&Training
 from Training import train
@@ -57,9 +57,9 @@ def trainChatbot():
 def responseChatbot():
     question = request.get_json()
     classi = chatBotClassify(question['question'])
+    print(question['question'],classi)
     classi_dict={}
     for classification in classi:
-        print(classification)
         classi_dict[classification[0]] = "{!s}".format(classification[1])
 
     classify = classi[0]
@@ -149,7 +149,7 @@ def insertIntent():
         insertEdit(intent)
     
     return "Ok" 
-
+#Answer/Pattern
 @app.route("/api/deleteAnswer/<int:id>",methods=["DELETE"])
 @cross_origin()
 def delAnswer(id):
@@ -160,6 +160,15 @@ def delAnswer(id):
     except exc.SQLAlchemyError:
         return errorResp()
 
+@app.route("/api/deletePattern/<int:id>",methods=["DELETE"])
+@cross_origin()
+def delPattern(id):
+    try:
+        deletePattern(id)
+        return returnOk()
+
+    except exc.SQLAlchemyError:
+        return errorResp()
 
 #User
 @app.route("/api/Users",methods=["GET"])

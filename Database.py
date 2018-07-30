@@ -46,6 +46,17 @@ def deleteResponse(id):
     session.close()
 
 #Pattern
+def getSinglePattern(id):
+    pattern = session.query(Pattern).filter_by(id=id).first()
+    session.close()
+    return pattern
+
+def deletePattern(id):
+    pattern = session.query(Pattern).filter_by(id=id).first()
+    session.delete(pattern)
+    session.commit()
+    session.close()
+
 
 #Conversation
 

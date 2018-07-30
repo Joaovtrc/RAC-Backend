@@ -15,7 +15,7 @@ from DBClasses import Intent, Pattern, Response, IntentSchema, ResponseSchema, P
 
 from marshmallow import pprint
 
-
+tflearn.init_graph(gpu_memory_fraction=0.1)
 stemmer = nltk.stem.RSLPStemmer()
 
 data = pickle.load( open( "training_data", "rb" ) )
@@ -29,20 +29,21 @@ schema = IntentSchema(many=True)
 intents = schema.dump(getIntents())
 
 # reset underlying graph data
-tf.reset_default_graph()
+
 
 # Build neural network
-net = tflearn.input_data(shape=[None, len(train_x[0])])
-net = tflearn.fully_connected(net, 8)
-net = tflearn.fully_connected(net, 8)
-net = tflearn.fully_connected(net, len(train_y[0]), activation='softmax')
-net = tflearn.regression(net)
+with tf.device('/gpu:0'):
+    net = tflearn.input_data(shape=[None, len(train_x[0])])
+    net = tflearn.fully_connected(net, 8)
+    net = tflearn.fully_connected(net, 8)
+    net = tflearn.fully_connected(net, len(train_y[0]), activation='softmax')
+    net = tflearn.regression(net)
 
-# Define model and setup tensorboard
-model = tflearn.DNN(net, tensorboard_dir='tflearn_logs')
+    # Define model and setup tensorboard
+    model = tflearn.DNN(net, tensorboard_dir='tflearn_logs')
 
-# load our saved model
-model.load('./model.tflearn')
+    # load our saved model
+    model.load('./model.tflearn')
 
 
 def clean_up_sentence(sentence):
@@ -74,7 +75,8 @@ context = {}
 ERROR_THRESHOLD = 0.25
 def classify(sentence):
     # generate probabilities from the model
-    results = model.predict([bow(sentence, words)])[0]
+    with tf.device('/gpu:0'):
+        results = model.predict([bow(sentence, words)])[0]
     # filter out predictions below a threshold
     results = [[i,r] for i,r in enumerate(results) if r>ERROR_THRESHOLD]
     # sort by strength of probability
