@@ -33,6 +33,8 @@ def returnOk():
 
     return resp
 
+#---------------------------------------------------------#
+
 @app.errorhandler(400)
 def errorResp(error=None):
     message = {
@@ -43,6 +45,7 @@ def errorResp(error=None):
     resp.status_code = 400
     return resp
 
+#---------------------------------------------------------#
 
 #Routes
 #CHATBOT
@@ -51,6 +54,8 @@ def errorResp(error=None):
 def trainChatbot():
     train()
     return returnOk()
+
+#---------------------------------------------------------#
 
 @app.route("/api/ChatBot/Response",methods=["POST"])
 @cross_origin()
@@ -86,8 +91,8 @@ def responseChatbot():
                     mimetype="application/json")
 
     
+#---------------------------------------------------------#
 #INTENT
-
 @app.route("/api/Intents",methods=["GET"])
 @cross_origin()
 def listIntents():
@@ -97,6 +102,7 @@ def listIntents():
                     status=200,
                     mimetype="application/json")
 
+#---------------------------------------------------------#
 
 @app.route("/api/insertIntent",methods=["POST"])
 @cross_origin()
@@ -126,8 +132,36 @@ def insertIntentAnswersPatterns():
 
     except exc.SQLAlchemyError:
         return errorResp()
-    
+
+#---------------------------------------------------------#
+
+
+@app.route("/api/insertSingleIntent",methods=["POST"])
+@cross_origin()
+def insertSingleIntent():
+    intentJson = request.get_json()
+    print(intentJson)
+
+    intent = Intent()
+    intent.tag = intentJson['tag']
+
+    for pattJson in intentJson['patterns']:
+        patt = Pattern()
+        patt.pattern = pattJson
+        intent.patterns.append(patt)
+
+
+    try:
+        insertEdit(intent)
+        return returnOk()
+
+    except exc.SQLAlchemyError:
+        return errorResp()
+
+#---------------------------------------------------------#
+
 @app.route("/api/insertIntentJson",methods=["POST"])
+@cross_origin()
 def insertIntent():
     intents = request.get_json()
     print(intents)
@@ -149,6 +183,9 @@ def insertIntent():
         insertEdit(intent)
     
     return "Ok" 
+
+#---------------------------------------------------------#
+
 #Answer/Pattern
 @app.route("/api/deleteAnswer/<int:id>",methods=["DELETE"])
 @cross_origin()
@@ -160,6 +197,8 @@ def delAnswer(id):
     except exc.SQLAlchemyError:
         return errorResp()
 
+#---------------------------------------------------------#
+
 @app.route("/api/deletePattern/<int:id>",methods=["DELETE"])
 @cross_origin()
 def delPattern(id):
@@ -169,6 +208,8 @@ def delPattern(id):
 
     except exc.SQLAlchemyError:
         return errorResp()
+
+#---------------------------------------------------------#
 
 #User
 @app.route("/api/Users",methods=["GET"])
@@ -197,6 +238,8 @@ def getUser(id):
         
     except exc.SQLAlchemyError:
         return errorResp()
+
+#---------------------------------------------------------#
 
 @app.route("/api/insertUser",methods=["POST"])
 @cross_origin()
