@@ -2,6 +2,7 @@
 import json
 import jsonpickle
 import numpy as np
+import random
 
 #FLASK
 from flask import Flask, jsonify, render_template, request, redirect, url_for, Response as ResponseHttp
@@ -12,7 +13,7 @@ from sqlalchemy import exc
 #DB
 from DBClasses import Intent, Pattern, Response, User, Conversation, IntentSchema, ResponseSchema, PatternSchema, UserSchema, ConversationSchema
 from marshmallow import pprint
-from Database import insertEdit, getIntents, getSingleIntent, deleteIntent, deleteResponse,deletePattern, getSingleResponse,getIntentByName, getUsers, getSingleUser, addConversation
+from Database import insertEdit, getIntents, getSingleIntent, deleteIntent, deleteResponse,deletePattern, getSingleResponse,getIntentByName, getUsers, getSingleUser, addConversation, getAllCvsWithNoAnswer
 
 #ChatBot&Training
 from Training import train
@@ -62,28 +63,37 @@ def trainChatbot():
 def responseChatbot():
     question = request.get_json()
     classi = chatBotClassify(question['question'])
+    print(len(classi))
     print(question['question'],classi)
+
     classi_dict={}
     for classification in classi:
         classi_dict[classification[0]] = "{!s}".format(classification[1])
-
-    classify = classi[0]
-    cv = Conversation()
-    cv.user = getSingleUser(question['idUser'])
     
-    cv.question = question['question']
-    cv.classify = classify[1]
-    #INSTANCIAR OBJETO RESPONSE, PQ O CHATBOT RESPONDE EM DICT!!!
+    cv = Conversation()
+    if(len(classi) != 0):
+        classify = classi[0]
+        cv.classify = classify[1]
 
-    responseDict = chatBotResponse(question['question'])
-    cv.response = Response()
-    cv.response = getSingleResponse(responseDict['id'])
+        responseDict = chatBotResponse(question['question'])
+        cv.response = Response()
+        cv.response = getSingleResponse(responseDict['id'])
 
-    cv.intent = Intent()
-    cv.intent = getIntentByName(classify[0])
+        cv.intent = Intent()
+        cv.intent = getIntentByName(classify[0])
+    else:
+        cv.classify = 0
 
+        cv.intent = Intent()
+        cv.intent = getIntentByName("NAO_SEI")
+
+        cv.response = random.choice(cv.intent.responses)
+
+
+    cv.user = getSingleUser(question['idUser'])
+    cv.question = question['question']  
+  
     addConversation(cv)
-
 
     conversationSchema = ConversationSchema()
     return ResponseHttp(response=json.dumps(conversationSchema.dump(cv)),
@@ -255,6 +265,24 @@ def insertUser():
 
     except exc.SQLAlchemyError:
         return errorResp()
+
+#---------------------------------------------------------#
+
+@app.route("/api/getAllCvsWithNoAnswer",methods=["GET"])
+@cross_origin()
+def getAllCvsWNoAnswer():
+    try:
+        conversations = getAllCvsWithNoAnswer()
+        schema = ConversationSchema(many=True)
+        return  ResponseHttp(response=json.dumps(schema.dump(conversations)),
+                    status=200,
+                    mimetype="application/json")
+
+    except exc.SQLAlchemyError:
+        return errorResp()
+
+#---------------------------------------------------------#
+
 
 if __name__ == "__main__":
     app.run(debug=True)

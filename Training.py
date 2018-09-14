@@ -29,6 +29,11 @@ def train():
     #Carrega as intents do banco de dados
     schema = IntentSchema(many=True)
     intents = schema.dump(getIntents())
+    for intent in intents:
+        if(intent["tag"] == "NAO_SEI"):
+            intents.remove(intent)
+
+    print(intents)
 
     with open('validation_set.json', encoding="utf8") as json_data:
         validation_set = json.load(json_data)
@@ -63,7 +68,7 @@ def train():
         # Começa o treinamento e salva o treinamento
       
         
-        model.fit(train_x, train_y, n_epoch=10000,snapshot_step=100, snapshot_epoch=False, validation_set=(val_x, val_y), show_metric=True)
+        model.fit(train_x, train_y, n_epoch=1000, snapshot_step=100, snapshot_epoch=False, validation_set=(val_x, val_y), show_metric=True)
         model.save('model.tflearn')
 
         #Gera um arquivo com os dados usados no treinamento
@@ -118,45 +123,45 @@ def prepareValidatitonSet():
     global classesVal
 
     # remove duplicates
-    classes = sorted(list(set(classesVal)))
+    classesVal = sorted(list(set(classesVal)))
 
-    print (len(docsVal), "documentsVal")
+    print (len(docsVal), "documentsVal", docsVal)
     print (len(classesVal), "classesVal", classesVal)
     print (len(words), "unique stemmed words", words)
 
     # create our training data
-    training = []
+    validation = []
     output = []
     # create an empty array for our output
-    output_empty = [0] * len(classes)
+    output_empty = [0] * len(classesVal)
 
     # training set, bag of words for each sentence
-    for doc in docsVal:
+    for docV in docsVal:
         # initialize our bag of words
-        bag = []
+        bagVal = []
         # list of tokenized words for the pattern
-        pattern_words = doc[0]
+        pattern_words = docV[0]
         # stem each word
         pattern_words = [stemmer.stem(word.lower()) for word in pattern_words]
         # create our bag of words array
         for w in words:
-            bag.append(1) if w in pattern_words else bag.append(0)
+            bagVal.append(1) if w in pattern_words else bagVal.append(0)
 
         # output is a '0' for each tag and '1' for current tag
         output_row = list(output_empty)
-        output_row[classes.index(doc[1])] = 1
+        output_row[classesVal.index(docV[1])] = 1
 
-        training.append([bag, output_row])
+        validation.append([bagVal, output_row])
 
     # shuffle our features and turn into np.array
-    random.shuffle(training)
-    training = np.array(training)
+    random.shuffle(validation)
+    validation = np.array(validation)
 
 
     global val_x 
     global val_y
-    val_x = list(training[:,0])
-    val_y = list(training[:,1])
+    val_x = list(validation[:,0])
+    val_y = list(validation[:,1])
 
 
 def prepareTrainingSet():
@@ -165,9 +170,9 @@ def prepareTrainingSet():
     global classesTrain
 
     # remove duplicates
-    classes = sorted(list(set(classesTrain)))
+    classesTrain = sorted(list(set(classesTrain)))
 
-    print (len(docsTrain), "docsTrain")
+    print (len(docsTrain), "docsTrain", docsTrain)
     print (len(classesTrain), "classesTrain", classesTrain)
     print (len(words), "unique stemmed words", words)
 
@@ -175,7 +180,7 @@ def prepareTrainingSet():
     training = []
     output = []
     # create an empty array for our output
-    output_empty = [0] * len(classes)
+    output_empty = [0] * len(classesTrain)
 
     # training set, bag of words for each sentence
     for doc in docsTrain:
@@ -191,10 +196,8 @@ def prepareTrainingSet():
 
         # output is a '0' for each tag and '1' for current tag
         output_row = list(output_empty)
-        output_row[classes.index(doc[1])] = 1
-
+        output_row[classesTrain.index(doc[1])] = 1
         training.append([bag, output_row])
-
     # shuffle our features and turn into np.array
     random.shuffle(training)
     training = np.array(training)

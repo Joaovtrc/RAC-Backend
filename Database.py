@@ -1,5 +1,5 @@
 from sqlalchemy.orm import sessionmaker
-from DBClasses import Intent, Pattern, Response, User, engine, Base
+from DBClasses import Intent, Pattern, Response, User, Conversation,engine, Base
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
@@ -65,14 +65,16 @@ def addConversation(cv):
     session.commit()
     session.close()
 
+def getAllCvsWithNoAnswer():
+    cvs = session.query(Conversation).join(Intent).filter(Intent.tag=='NAO_SEI').all()
+    session.close()
+    return cvs
+
 #User
 
 def getUsers():
     users = session.query(User).all()
-    print('debugDB')
     session.close()
-    print('debugDB2')
-
     return users
 
 def getSingleUser(id):
