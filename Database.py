@@ -65,6 +65,11 @@ def addConversation(cv):
     session.commit()
     session.close()
 
+def getCvById(id):
+    cvs = session.query(Conversation).filter_by(id=id).first()
+    session.close()
+    return cvs
+
 def getAllCvsWithNoAnswer():
     cvs = session.query(Conversation).join(Intent).filter(Intent.tag=='NAO_SEI').all()
     session.close()

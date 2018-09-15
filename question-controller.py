@@ -13,7 +13,7 @@ from sqlalchemy import exc
 #DB
 from DBClasses import Intent, Pattern, Response, User, Conversation, IntentSchema, ResponseSchema, PatternSchema, UserSchema, ConversationSchema
 from marshmallow import pprint
-from Database import insertEdit, getIntents, getSingleIntent, deleteIntent, deleteResponse,deletePattern, getSingleResponse,getIntentByName, getUsers, getSingleUser, addConversation, getAllCvsWithNoAnswer
+from Database import insertEdit, getIntents, getSingleIntent, deleteIntent, deleteResponse,deletePattern, getSingleResponse,getIntentByName, getUsers, getSingleUser, addConversation, getAllCvsWithNoAnswer,getCvById
 
 #ChatBot&Training
 from Training import train
@@ -195,6 +195,7 @@ def insertIntent():
     return "Ok" 
 
 #---------------------------------------------------------#
+#TODO: IMPLEMENT isDeleted TAG to end conflicts with conversation table while deleting answers and patterns
 
 #Answer/Pattern
 @app.route("/api/deleteAnswer/<int:id>",methods=["DELETE"])
@@ -283,6 +284,33 @@ def getAllCvsWNoAnswer():
 
 #---------------------------------------------------------#
 
+@app.route("/api/curateConversation/<int:idCV>/<int:idIntent>",methods=["POST"])
+@cross_origin()
+def curateConversation(idCV,idIntent):
+    try:
+        conversation: Conversation = getCvById(idCV)
+
+        intent: Intent = getSingleIntent(idIntent)
+        patt = Pattern()    
+        patt.pattern = conversation.question
+        intent.patterns.append(patt)
+        insertEdit(intent)
+
+
+        intent = getSingleIntent(idIntent)
+        conversation.intent = intent
+        addConversation(conversation)
+
+        
+        return returnOk()
+
+
+    except exc.SQLAlchemyError:
+        import sys
+        print(sys.exc_info())
+        return errorResp()
+
+#---------------------------------------------------------#
 
 if __name__ == "__main__":
     app.run(debug=True)
