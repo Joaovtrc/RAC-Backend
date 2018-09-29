@@ -13,7 +13,7 @@ from sqlalchemy import exc
 #DB
 from DBClasses import Intent, Pattern, Response, User, Conversation, IntentSchema, ResponseSchema, PatternSchema, UserSchema, ConversationSchema
 from marshmallow import pprint
-from Database import insertEdit, getIntents, getSingleIntent, deleteIntent, deleteResponse,deletePattern, getSingleResponse,getIntentByName, getUsers, getSingleUser, addConversation, getAllCvsWithNoAnswer,getCvById
+from Database import insertEdit, getIntents, getSingleIntent, deleteIntent, deleteResponse,deletePattern, getSingleResponse,getIntentByName, getUsers, getSingleUser, addConversation, getAllCvsWithNoAnswer,getCvById,getUserByUsername
 
 #ChatBot&Training
 from Training import train
@@ -250,6 +250,26 @@ def getUser(id):
     except exc.SQLAlchemyError:
         return errorResp()
 
+@app.route("/api/Login",methods=["POST"])
+@cross_origin()
+def loginUser():
+    try:
+        userJSON = request.get_json()
+        user = getUserByUsername(userJSON['username'])
+        print(user)
+        if(user != None):
+            schema = UserSchema()
+            if(user.password == userJSON['password']):
+                return  ResponseHttp(response=json.dumps(schema.dump(user)),
+                            status=200,
+                            mimetype="application/json")
+            else:
+                return errorResp()
+        else:
+            return errorResp()
+            
+    except exc.SQLAlchemyError:
+        return errorResp()
 #---------------------------------------------------------#
 
 @app.route("/api/insertUser",methods=["POST"])

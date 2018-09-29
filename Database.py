@@ -86,3 +86,8 @@ def getSingleUser(id):
     user = session.query(User).filter_by(id=id).first()
     session.close()
     return user
+
+def getUserByUsername(username):
+    user = session.query(User).filter_by(username=username).first()
+    session.close()
+    return user

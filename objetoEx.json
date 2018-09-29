@@ -1,0 +1,10 @@
+{
+    "tag": "quem_descobriu_brasil",
+    "patterns": [
+        "qual o nome de quem descobriu o Brasil?",
+        "quem descobriu o Brasil?"
+    ],
+    "responses": [
+    "Pedro Álvares Cabral descobriu o brasil no dia 22 de abril por volta do ano 1500."
+    ]
+}
