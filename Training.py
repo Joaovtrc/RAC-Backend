@@ -68,7 +68,7 @@ def train():
         # Começa o treinamento e salva o treinamento
       
         
-        model.fit(train_x, train_y, n_epoch=1000, snapshot_step=100, snapshot_epoch=False, validation_set=(val_x, val_y), show_metric=True)
+        model.fit(train_x, train_y, n_epoch=1200, snapshot_step=100, snapshot_epoch=False, validation_set=(val_x, val_y), show_metric=True)
         model.save('model.tflearn')
 
         #Gera um arquivo com os dados usados no treinamento

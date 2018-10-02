@@ -62,6 +62,7 @@ def trainChatbot():
 @cross_origin()
 def responseChatbot():
     question = request.get_json()
+    print(question)
     classi = chatBotClassify(question['question'])
     print(len(classi))
     print(question['question'],classi)
@@ -333,4 +334,4 @@ def curateConversation(idCV,idIntent):
 #---------------------------------------------------------#
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0',debug=True)
