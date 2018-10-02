@@ -1,7 +1,7 @@
 import os
 import sys
 import datetime
-from sqlalchemy import Column, ForeignKey, Integer, String, Float, DateTime
+from sqlalchemy import Column, ForeignKey, Integer, String, Float, DateTime, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
@@ -17,18 +17,21 @@ class Intent(Base):
     context_set = Column(String(50), nullable = True)
     patterns = relationship('Pattern',backref ='intents', lazy='subquery')
     responses = relationship('Response',backref='intents', lazy='subquery')
+    isDeleted = Column(Boolean, default=False)
 
 class Pattern(Base):
     __tablename__ = 'patterns'
     id = Column(Integer, primary_key=True,autoincrement=True)
     pattern = Column(String(300), nullable=False)
     intent_id = Column(Integer, ForeignKey('intents.id'))
+    isDeleted = Column(Boolean, default=False)
 
 class Response(Base):
     __tablename__ = 'responses'
     id = Column(Integer, primary_key=True,autoincrement=True)
     response = Column(String(500), nullable=False)
     intent_id = Column(Integer, ForeignKey('intents.id'))
+    isDeleted = Column(Boolean, default=False)
 
 class User(Base):
     __tablename__ = 'users'
@@ -37,6 +40,7 @@ class User(Base):
     password = Column(String(30), nullable=False)
     name = Column(String(300), nullable=False)
     conversations = relationship('Conversation',backref ='users', lazy='subquery')
+    isDeleted = Column(Boolean, default=False)
 
 class Conversation(Base):
     __tablename__ = 'conversations'
@@ -54,6 +58,8 @@ class Conversation(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
     user = relationship('User', lazy='subquery')
 
+    isDeleted = Column(Boolean, default=False)
+
 
 
     
@@ -66,11 +72,13 @@ class PatternSchema(Schema):
     id = fields.Integer()
     pattern = fields.String()
     intent_id = fields.Integer()
+    isDeleted = fields.Boolean()
 
 class ResponseSchema(Schema):
     id = fields.Integer()
     response = fields.String()
     intent_id = fields.Integer()
+    isDeleted = fields.Boolean()
 
 class IntentSchema(Schema):
     id = fields.Integer()
@@ -79,6 +87,7 @@ class IntentSchema(Schema):
     context_set = fields.String()
     patterns = fields.Nested(PatternSchema(), many=True)
     responses = fields.Nested(ResponseSchema(), many=True)
+    isDeleted = fields.Boolean()
 
 class ConversationSchema(Schema):
     id = fields.Integer()
@@ -88,6 +97,7 @@ class ConversationSchema(Schema):
     classify = fields.Float()
     intent = fields.Nested(IntentSchema(only=('tag', 'id')))
     response = fields.Nested(ResponseSchema())
+    isDeleted = fields.Boolean()
 
 class UserSchema(Schema):
     id = fields.Integer()
@@ -95,11 +105,12 @@ class UserSchema(Schema):
     username = fields.String()
     password = fields.String(load_only=True)
     conversations = fields.Nested(ConversationSchema, many=True, exclude=('user',))
+    isDeleted = fields.Boolean()
 
 
 
 
-engine = create_engine('sqlite:///rac_database.db')
+engine = create_engine('sqlite:///rac_database_2.db')
 
 
 Base.metadata.create_all(engine)
