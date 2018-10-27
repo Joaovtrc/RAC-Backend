@@ -111,3 +111,44 @@ def response(sentence, userID='123', show_details=False):
                         return response
 
             results.pop(0)
+
+def loadData():
+    global data
+    global words 
+    global classes
+    global train_x
+    global train_y
+    global schema
+    global intents
+    global net
+    global model
+
+    #Carrega os dados que a Classe Training.py criou e colocou no arquivo training_data.
+    data = pickle.load( open( "training_data", "rb" ) )
+    words = data['words']
+    classes = data['classes']
+    train_x = data['train_x']
+    train_y = data['train_y']
+
+    # Carrega as intents do banco de dados
+    schema = IntentSchema(many=True)
+    intents = schema.dump(getIntents())
+
+    #inicia tflearn com 0.1 da memória da GPU
+    tf.reset_default_graph()
+    tflearn.init_graph(gpu_memory_fraction=0.1)
+    
+    #Constrói a rede neural
+    with tf.device('/gpu:0'):
+        net = tflearn.input_data(shape=[None, len(train_x[0])])
+        #Número de nós da rede
+        #net = tflearn.fully_connected(net, 16)
+        net = tflearn.fully_connected(net, 16) #inicia o nó da rede com 16 neurônios
+        net = tflearn.fully_connected(net, len(train_y[0]), activation='softmax')
+        net = tflearn.regression(net)
+
+        #Define o model e diz qual o diretório os logs da rede ficam
+        model = tflearn.DNN(net, tensorboard_dir='tflearn_logs')
+
+        # Carrega o modelo feito pelo treinamento
+        model.load('./model.tflearn')

@@ -1,5 +1,6 @@
 from sqlalchemy.orm import sessionmaker
 from DBClasses import Intent, Pattern, Response, User, Conversation,engine, Base
+from sqlalchemy import and_
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
@@ -72,6 +73,11 @@ def getCvById(id):
 
 def getAllCvsWithNoAnswer():
     cvs = session.query(Conversation).join(Intent).filter(Intent.tag=='NAO_SEI').all()
+    session.close()
+    return cvs
+
+def getAllCvsWithLowClassify():
+    cvs = session.query(Conversation).filter(Conversation.classify < 0.30, Conversation.classify > 0).all()
     session.close()
     return cvs
 

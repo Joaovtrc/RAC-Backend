@@ -13,11 +13,11 @@ from sqlalchemy import exc
 #DB
 from DBClasses import Intent, Pattern, Response, User, Conversation, IntentSchema, ResponseSchema, PatternSchema, UserSchema, ConversationSchema
 from marshmallow import pprint
-from Database import insertEdit, getIntents, getSingleIntent, deleteIntent, deleteResponse,deletePattern, getSingleResponse,getIntentByName, getUsers, getSingleUser, addConversation, getAllCvsWithNoAnswer,getCvById,getUserByUsername
+from Database import insertEdit, getIntents, getSingleIntent, deleteIntent, deleteResponse,deletePattern, getSingleResponse,getIntentByName, getUsers, getSingleUser, addConversation, getAllCvsWithNoAnswer,getAllCvsWithLowClassify,getCvById,getUserByUsername
 
 #ChatBot&Training
 from Training import train
-from Chatbot import response as chatBotResponse, classify as chatBotClassify
+from Chatbot import response as chatBotResponse, classify as chatBotClassify, loadData as loadChatbotData
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -54,6 +54,7 @@ def errorResp(error=None):
 @cross_origin()
 def trainChatbot():
     train()
+    loadChatbotData()
     return returnOk()
 
 #---------------------------------------------------------#
@@ -113,6 +114,16 @@ def listIntents():
                     status=200,
                     mimetype="application/json")
 
+                    
+@app.route("/api/IntentByName/<string:tagName>",methods=["GET"])
+@cross_origin()
+def getIntentByTag(tagName):
+    intent = getIntentByName(tagName)
+    schema = IntentSchema()
+    return  ResponseHttp(response=json.dumps(schema.dump(intent)),
+                    status=200,
+                    mimetype="application/json")
+
 #---------------------------------------------------------#
 
 @app.route("/api/insertIntent",methods=["POST"])
@@ -158,11 +169,13 @@ def insertSingleIntent():
 
     for pattJson in intentJson['patterns']:
         patt = Pattern()
-        patt.pattern = pattJson
+        print(pattJson['pattern'])
+        patt.pattern = pattJson['pattern']
         intent.patterns.append(patt)
 
 
     try:
+        print(intent)
         insertEdit(intent)
         return returnOk()
 
@@ -193,7 +206,11 @@ def insertIntent():
         print(intent)
         insertEdit(intent)
     
-    return "Ok" 
+    try:
+        insertEdit(intent)
+        return returnOk()
+    except exc.SQLAlchemyError:
+        return errorResp() 
 
 #---------------------------------------------------------#
 #TODO: IMPLEMENT isDeleted TAG to end conflicts with conversation table while deleting answers and patterns
@@ -305,6 +322,21 @@ def getAllCvsWNoAnswer():
 
 #---------------------------------------------------------#
 
+@app.route("/api/getAllCvsWithLowClassify",methods=["GET"])
+@cross_origin()
+def getAllCvsWLowClassify():
+    try:
+        conversations = getAllCvsWithLowClassify()
+        schema = ConversationSchema(many=True)
+        return  ResponseHttp(response=json.dumps(schema.dump(conversations)),
+                    status=200,
+                    mimetype="application/json")
+
+    except exc.SQLAlchemyError:
+        return errorResp()
+
+#---------------------------------------------------------#
+
 @app.route("/api/curateConversation/<int:idCV>/<int:idIntent>",methods=["POST"])
 @cross_origin()
 def curateConversation(idCV,idIntent):
@@ -320,6 +352,59 @@ def curateConversation(idCV,idIntent):
 
         intent = getSingleIntent(idIntent)
         conversation.intent = intent
+        addConversation(conversation)
+
+        
+        return returnOk()
+
+
+    except exc.SQLAlchemyError:
+        import sys
+        print(sys.exc_info())
+        return errorResp()
+
+#---------------------------------------------------------#
+
+@app.route("/api/curateConversationWLowClass/<int:idCV>/<int:idIntent>",methods=["POST"])
+@cross_origin()
+def curateConversationWLowClass(idCV,idIntent):
+    try:
+        conversation: Conversation = getCvById(idCV)
+        conversation.classify = 0.31
+        intent: Intent = getSingleIntent(idIntent)
+        patt = Pattern()    
+        patt.pattern = conversation.question
+        intent.patterns.append(patt)
+        insertEdit(intent)
+
+
+        intent = getSingleIntent(idIntent)
+        conversation.intent = intent
+        addConversation(conversation)
+
+        
+        return returnOk()
+
+
+    except exc.SQLAlchemyError:
+        import sys
+        print(sys.exc_info())
+        return errorResp()
+
+#---------------------------------------------------------#
+
+@app.route("/api/curateConversationWCorrectAnswer/<int:idCV>",methods=["POST"])
+@cross_origin()
+def curateConversationWCorrectAnswer(idCV):
+    try:
+        conversation: Conversation = getCvById(idCV)
+        conversation.classify = 0.31
+        intent: Intent = conversation.intent
+        patt = Pattern()    
+        patt.pattern = conversation.question
+        intent.patterns.append(patt)
+        insertEdit(intent)
+
         addConversation(conversation)
 
         
